@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>학교 종소리 (MP4)</title>
+  <style>
+    body {
+      font-family: monospace;
+      background-color: white;
+      text-align: center;
+      padding-top: 30px;
+    }
+    #clock {
+      font-size: 32px;
+      line-height: 1.05;
+      white-space: pre;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .dot {
+      color: #ccc;
+      font-size: 18px;
+    }
+    .dot.on {
+      color: blue;
+    }
+    #status {
+      font-size: 36px;
+      font-weight: bold;
+      margin: 10px;
+      background: linear-gradient(270deg, red, orange, yellow, green, blue, indigo, violet);
+      background-size: 1000% 1000%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: rainbowText 5s linear infinite;
+    }
+    @keyframes rainbowText {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+    .highlight {*
+      font-weight: bold;
+    } 
+  </style>
+</head>
+<body>
+  <h1>'대'양정</h1>
+  <p>👇 아래 버튼을 한 번 눌러야 자동 재생이 작동해요.</p>
+  <button onclick="unlockBell()">🔓 종소리 활성화</button>
+
+  <div id="clock">--:--</div>
+  <div id="status"></div>
+
+  <!-- 벨 파일 -->
+  <video id="bell1" src="bell1.mp4" style="display:none"></video>
+  <video id="bell2" src="bell2.mp4" style="display:none"></video>
+  <video id="bell3" src="bell3.mp4" style="display:none"></video>
+  <video id="bell4" src="bell4.mp4" style="display:none"></video>
+  <audio id="bell5" src="bell5.mp3" style="display:none"></audio>
+
+  <script>
+    const schedule = {
+        "08:30": "bell1", "08:40": "bell2", "08:50": "bell4",
+        "09:00": "bell3", "09:45": "bell4", "09:55": "bell3",
+        "10:40": "bell4", "10:50": "bell3", "11:35": "bell4",
+        "11:45": "bell3", "12:30": "bell4", "13:30": "bell3",
+        "14:15": "bell4", "14:25": "bell3", "15:10": "bell4",
+        "15:20": "bell3", "16:05": "bell4",
+        "08:55": "bell5", "09:50": "bell5", "10:45": "bell5",
+        "11:40": "bell5", "13:25": "bell5", "14:20": "bell5",
+        "15:15": "bell5",
+    "16:30": "bell1",
+    "16:40": "bell2",
+    "16:50": "bell4",
+    "17:00": "bell3",
+    "17:45": "bell4",
+    "17:55": "bell3",
+    "18:40": "bell4",
+    "18:50": "bell3",
+    "19:35": "bell4",
+    "19:45": "bell3",
+    "20:30": "bell4",
+    "21:30": "bell3",
+    "22:15": "bell4",
+    "22:25": "bell3",
+    "23:10": "bell4",
+    "23:20": "bell3",
+    "00:05": "bell4",
+    "16:55": "bell5",
+    "17:50": "bell5",
+    "18:45": "bell5",
+    "19:40": "bell5",
+    "21:25": "bell5",
+    "22:20": "bell5",
+    "23:15": "bell5"
+
+
+
+
+
+
+
+
+    };
+
+    const lessonSchedule = [
+        { start: "09:00", end: "09:45", index: 1 },
+        { start: "09:55", end: "10:40", index: 2 },
+        { start: "10:50", end: "11:35", index: 3 },
+        { start: "11:45", end: "12:30", index: 4 },
+        { start: "13:30", end: "14:15", index: 5 },
+        { start: "14:25", end: "15:10", index: 6 },
+        { start: "15:20", end: "16:05", index: 7 }
+    ];
+
+    let played = {};
+    let audioUnlocked = false;
+
+    function unlockBell() {
+      for (let i = 1; i <= 5; i++) {
+        const bell = document.getElementById(`bell${i}`);
+        if (bell) {
+          bell.volume = 0;
+          bell.play().then(() => {
+            bell.pause();
+            bell.currentTime = 0;
+            bell.volume = 1;
+          }).catch(err => {
+            console.log("🔒 초기 재생 실패:", err);
+          });
+        }
+      }
+      audioUnlocked = true;
+      alert("✅ 종소리 활성화 완료!");
+    }
+
+    function isFiveMinutesBefore(target, current) {
+      const [th, tm] = target.split(":"), [ch, cm] = current.split(":");
+      const targetMin = parseInt(th) * 60 + parseInt(tm);
+      const currentMin = parseInt(ch) * 60 + parseInt(cm);
+      return targetMin - currentMin === 5;
+    }
+
+    const dotDigits = {
+      "0": [".XXX.", "X...X", "X...X", "X...X", ".XXX."],
+      "1": ["..X..", ".XX..", "..X..", "..X..", ".XXX."],
+      "2": [".XXX.", "....X", ".XXX.", "X....", ".XXX."],
+      "3": [".XXX.", "....X", ".XXX.", "....X", ".XXX."],
+      "4": ["X...X", "X...X", ".XXX.", "....X", "....X"],
+      "5": [".XXX.", "X....", ".XXX.", "....X", ".XXX."],
+      "6": [".XXX.", "X....", ".XXX.", "X...X", ".XXX."],
+      "7": [".XXX.", "....X", "...X.", "..X..", ".X..."],
+      "8": [".XXX.", "X...X", ".XXX.", "X...X", ".XXX."],
+      "9": [".XXX.", "X...X", ".XXX.", "....X", ".XXX."],
+      ":": [".....", "..X..", ".....", "..X..", "....."]
+    };
+
+    function drawDotClock(timeStr) {
+      const chars = timeStr.split("");
+      const lines = Array(5).fill("").map(() => []);
+
+      chars.forEach(char => {
+        const dots = dotDigits[char];
+        dots.forEach((line, i) => {
+          for (let c of line) {
+            lines[i].push(`<span class='dot${c === 'X' ? " on" : ""}'>●</span>`);
+          }
+        });
+      });
+
+      return lines.map(l => l.join("")) .join("\n");
+    }
+
+    setInterval(() => {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      const timeStr = `${h}:${m}`;
+
+      document.getElementById("clock").innerHTML = drawDotClock(timeStr);
+
+      if (audioUnlocked && schedule[timeStr] && !played[timeStr]) {
+        const bell = document.getElementById(schedule[timeStr]);
+        bell.currentTime = 0;
+        bell.play().catch(err => console.log("⛔ 재생 실패:", err));
+        played[timeStr] = true;
+      }
+
+      let status = "수업 외 시간";
+      for (const lesson of lessonSchedule) {
+        if (timeStr >= lesson.start && timeStr < lesson.end) {
+          status = `${lesson.index}교시 수업 중 (bell3)`;
+          break;
+        } else if (isFiveMinutesBefore(lesson.start, timeStr)) {
+          status = `${lesson.index}교시 5분 전 알림 (bell5)`;
+          break;
+        } else if (timeStr >= lesson.end && (!lessonSchedule[lesson.index] || timeStr < lessonSchedule[lesson.index].start)) {
+          status = `${lesson.index}교시 끝난 후 쉬는 시간 (bell4)`;
+          break;
+        }
+      }
+
+      document.getElementById("status").innerHTML = status;
+    }, 1000);
+  </script>
+</body>
+</html>
