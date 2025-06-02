@@ -38,9 +38,9 @@
       0% { background-position: 0% 50%; }
       100% { background-position: 100% 50%; }
     }
-    .highlight {*
+    .highlight {
       font-weight: bold;
-    } 
+    }
   </style>
 </head>
 <body>
@@ -51,7 +51,6 @@
   <div id="clock">--:--</div>
   <div id="status"></div>
 
-  <!-- 벨 파일 -->
   <video id="bell1" src="bell1.mp4" style="display:none"></video>
   <video id="bell2" src="bell2.mp4" style="display:none"></video>
   <video id="bell3" src="bell3.mp4" style="display:none"></video>
@@ -60,58 +59,33 @@
 
   <script>
     const schedule = {
-        "08:30": "bell1", "08:40": "bell2", "08:50": "bell4",
-        "09:00": "bell3", "09:45": "bell4", "09:55": "bell3",
-        "10:40": "bell4", "10:50": "bell3", "11:35": "bell4",
-        "11:45": "bell3", "12:30": "bell4", "13:30": "bell3",
-        "14:15": "bell4", "14:25": "bell3", "15:10": "bell4",
-        "15:20": "bell3", "16:05": "bell4",
-        "08:55": "bell5", "09:50": "bell5", "10:45": "bell5",
-        "11:40": "bell5", "13:25": "bell5", "14:20": "bell5",
-        "15:15": "bell5",
-    "16:30": "bell1",
-    "16:40": "bell2",
-    "16:50": "bell4",
-    "17:00": "bell3",
-    "17:20": "bell3",
-    "17:45": "bell4",
-    "17:55": "bell3",
-    "18:40": "bell4",
-    "18:50": "bell3",
-    "19:35": "bell4",
-    "19:45": "bell3",
-    "20:30": "bell4",
-    "21:30": "bell3",
-    "22:15": "bell4",
-    "22:25": "bell3",
-    "23:10": "bell4",
-    "23:20": "bell3",
-    "00:05": "bell4",
-    "16:55": "bell5",
-    "17:50": "bell5",
-    "18:45": "bell5",
-    "19:40": "bell5",
-    "21:25": "bell5",
-    "22:20": "bell5",
-    "23:15": "bell5"
-
-
-
-
-
-
-
-
+      "08:30": "bell1", "08:40": "bell2", "08:50": "bell4",
+      "09:00": "bell3", "09:45": "bell4", "09:55": "bell3",
+      "10:40": "bell4", "10:50": "bell3", "11:35": "bell4",
+      "11:45": "bell3", "12:30": "bell4", "13:30": "bell3",
+      "14:15": "bell4", "14:25": "bell3", "15:10": "bell4",
+      "15:20": "bell3", "16:05": "bell4",
+      "08:55": "bell5", "09:50": "bell5", "10:45": "bell5",
+      "11:40": "bell5", "13:25": "bell5", "14:20": "bell5",
+      "15:15": "bell5", "16:30": "bell1", "16:40": "bell2",
+      "16:50": "bell4", "17:00": "bell3", "17:20": "bell3",
+      "17:45": "bell4", "17:55": "bell3", "18:40": "bell4",
+      "18:50": "bell3", "19:35": "bell4", "19:45": "bell3",
+      "20:30": "bell4", "21:30": "bell3", "22:15": "bell4",
+      "22:25": "bell3", "23:10": "bell4", "23:20": "bell3",
+      "00:05": "bell4", "16:55": "bell5", "17:50": "bell5",
+      "18:45": "bell5", "19:40": "bell5", "21:25": "bell5",
+      "22:20": "bell5", "23:15": "bell5"
     };
 
     const lessonSchedule = [
-        { start: "09:00", end: "09:45", index: 1 },
-        { start: "09:55", end: "10:40", index: 2 },
-        { start: "10:50", end: "11:35", index: 3 },
-        { start: "11:45", end: "12:30", index: 4 },
-        { start: "13:30", end: "14:15", index: 5 },
-        { start: "14:25", end: "15:10", index: 6 },
-        { start: "15:20", end: "16:05", index: 7 }
+      { start: "09:00", end: "09:45", index: 1 },
+      { start: "09:55", end: "10:40", index: 2 },
+      { start: "10:50", end: "11:35", index: 3 },
+      { start: "11:45", end: "12:30", index: 4 },
+      { start: "13:30", end: "14:15", index: 5 },
+      { start: "14:25", end: "15:10", index: 6 },
+      { start: "15:20", end: "16:05", index: 7 }
     ];
 
     let played = {};
@@ -169,16 +143,20 @@
         });
       });
 
-      return lines.map(l => l.join("")) .join("\n");
+      return lines.map(l => l.join("")).join("\n");
     }
 
     setInterval(() => {
+      const realNow = new Date();
+      const showH = String(realNow.getHours()).padStart(2, '0');
+      const showM = String(realNow.getMinutes()).padStart(2, '0');
+      document.getElementById("clock").innerHTML = drawDotClock(`${showH}:${showM}`);
+
       const now = new Date();
+      now.setSeconds(now.getSeconds() + 6);  // ⏰ 6초 일찍 울리기용 시계
       const h = String(now.getHours()).padStart(2, '0');
       const m = String(now.getMinutes()).padStart(2, '0');
       const timeStr = `${h}:${m}`;
-
-      document.getElementById("clock").innerHTML = drawDotClock(timeStr);
 
       if (audioUnlocked && schedule[timeStr] && !played[timeStr]) {
         const bell = document.getElementById(schedule[timeStr]);
